@@ -23,5 +23,6 @@ Quick start
     class ExampleModelForm(forms.ModelForm):
         class Meta:
             model = Example
+            fields = '__all__'
 
         ForeignKeyField = ModelMultiValueField()
