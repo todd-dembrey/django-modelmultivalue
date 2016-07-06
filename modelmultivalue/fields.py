@@ -24,7 +24,6 @@ class ModelMultiValueField(forms.MultiValueField):
     def compress(self, data_list):
         if data_list:
             attrs = dict((field, value) for field, value in zip(self.model_form.base_fields.keys(), data_list))
-            model_object = self.model.objects.create(**attrs)
+            return self.model.objects.create(**attrs)
         else:
             raise ValidationError('Could not create model', code='poor_data')
-        return model_object
