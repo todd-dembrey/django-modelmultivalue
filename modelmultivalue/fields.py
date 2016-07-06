@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ValidationError
 
 from .widgets import ModelMultiValueWidget
 
@@ -25,5 +26,5 @@ class ModelMultiValueField(forms.MultiValueField):
             attrs = dict((field, value) for field, value in zip(self.model_form.base_fields.keys(), data_list))
             model_object = self.model.objects.create(**attrs)
         else:
-            model_object = None
+            raise ValidationError('Could not create model', code='poor_data')
         return model_object
