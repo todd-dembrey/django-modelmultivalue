@@ -25,4 +25,4 @@ Quick start
             model = Example
             fields = '__all__'
 
-        ForeignKeyField = ModelMultiValueField()
+        ForeignKeyField = ModelMultiValueField(model=ForeignKey)
