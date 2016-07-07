@@ -1,3 +1,3 @@
-from .fields import ModelMultiValueField
+from .fields import ModelMultiValueField, ModelChoiceAndMultiField
 
-__all__ = [ModelMultiValueField]
+__all__ = [ModelMultiValueField, ModelChoiceAndMultiField]

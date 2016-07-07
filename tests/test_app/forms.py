@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import BaseModel, RelatedModel, MultiFieldModel, MultiFieldRelatedModel
-from modelmultivalue import ModelMultiValueField
+from modelmultivalue import ModelMultiValueField, ModelChoiceAndMultiField
 
 
 class BaseModelForm(forms.ModelForm):
@@ -27,3 +27,13 @@ class MultiFieldModelForm(forms.ModelForm):
         fields = '__all__'
 
     fk = ModelMultiValueField(model=MultiFieldRelatedModel)
+
+
+# Choice and Multi Form
+
+class ChoiceAndMultiForm(forms.ModelForm):
+    class Meta:
+        model = MultiFieldModel
+        fields = '__all__'
+
+    fk = ModelChoiceAndMultiField(model=RelatedModel)
