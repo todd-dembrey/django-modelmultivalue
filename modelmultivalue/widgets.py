@@ -20,4 +20,4 @@ class ModelMultiValueWidget(forms.MultiWidget):
                                                                                                     label=label if label else '',
                                                                                                     widget=widget)
                           for i, (widget, label) in enumerate(zip(rendered_widgets, self.labels))])
-        return ''.join((output,))
+        return output
