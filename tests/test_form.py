@@ -76,3 +76,8 @@ def test_doesnt_raise_error(parent_model, related_model, fields):
 
     assert parent_model.objects.count() == 1
     assert related_model.objects.count() == 1
+
+
+def test_no_model_in_init():
+    with pytest.raises(ImproperlyConfigured):
+        ModelMultiValueField()

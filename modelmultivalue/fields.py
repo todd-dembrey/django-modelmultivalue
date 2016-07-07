@@ -6,8 +6,11 @@ from .widgets import ModelMultiValueWidget
 
 
 class ModelMultiValueField(forms.MultiValueField):
-    def __init__(self, *args, **kwargs):
-        self.model = kwargs.pop('model')
+    def __init__(self, model=None, *args, **kwargs):
+        if model is None:
+            raise ImproperlyConfigured('Field must be created with a model', 'no_model_provided')
+        else:
+            self.model = model
 
         form_fields = kwargs.pop('fields', ALL_FIELDS)
 
