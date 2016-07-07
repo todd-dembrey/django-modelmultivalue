@@ -55,3 +55,8 @@ class ModelMultiValueField(forms.MultiValueField):
             return self.model.objects.create(**attrs)
         else:
             raise ValidationError('Could not create model', code='poor_data')
+
+
+class ModelChoiceAndMultiField(ModelMultiValueField):
+    def __init__(self, *args, **kwargs):
+        super(ModelChoiceAndMultiField, self).__init__(*args, **kwargs)
