@@ -33,7 +33,7 @@ class MultiFieldModelForm(forms.ModelForm):
 
 class ChoiceAndMultiForm(forms.ModelForm):
     class Meta:
-        model = MultiFieldModel
+        model = BaseModel
         fields = '__all__'
 
     fk = ModelChoiceAndMultiField(model=RelatedModel)
