@@ -7,8 +7,12 @@ from .widgets import ModelMultiValueWidget
 
 class ModelMultiValueField(forms.MultiValueField):
     def __init__(self, model=None, fields=ALL_FIELDS, *args, **kwargs):
+
         if model is None:
-            raise ImproperlyConfigured('Field must be created with a model', 'no_model_provided')
+            try:
+                self.model = kwargs.pop('queryset', None).model
+            except AttributeError:
+                raise ImproperlyConfigured('Field must be created with a model', 'no_model_provided')
         else:
             self.model = model
 
@@ -34,7 +38,11 @@ class ModelMultiValueField(forms.MultiValueField):
                                             labels=[field.label for field in form_fields],
                                             model=self.model
                                             )
+        # Remove kwargs that aren't needed TODO: Confirm not needed
+        kwargs.pop('limit_choices_to', None)
+        kwargs.pop('to_field_name', None)
 
+        # This allows the sub widgets to be blank
         kwargs.update({'required': False,
                        'require_all_fields': False
                        })

@@ -12,6 +12,15 @@ class BaseModelForm(forms.ModelForm):
     fk = ModelMultiValueField(model=RelatedModel)
 
 
+class BaseModelMetaForm(forms.ModelForm):
+    class Meta:
+        model = BaseModel
+        fields = '__all__'
+        field_classes = {
+            'fk': ModelMultiValueField,
+        }
+
+
 class MultiFieldModelForm(forms.ModelForm):
     class Meta:
         model = MultiFieldModel
