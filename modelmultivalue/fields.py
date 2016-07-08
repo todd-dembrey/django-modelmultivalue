@@ -57,6 +57,10 @@ class ModelMultiValueField(forms.MultiValueField):
             raise ValidationError('Could not create model', code='poor_data')
 
 
-class ModelChoiceAndMultiField(ModelMultiValueField):
+class ModelChoiceAndMultiField(forms.ModelChoiceField, ModelMultiValueField):
     def __init__(self, *args, **kwargs):
+
         super(ModelChoiceAndMultiField, self).__init__(*args, **kwargs)
+
+        # Because ModelChoiceField doesnt play nice with the MRO
+        ModelMultiValueField.__init__(self, *args, **kwargs)
