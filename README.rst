@@ -38,7 +38,7 @@ Quick start
             class Meta:
                 model = Example
                 fields = '__all__'
-                field_class_field={
+                field_classes={
                     'ForeignKeyField': ModelMultiValueField
                 }
 
