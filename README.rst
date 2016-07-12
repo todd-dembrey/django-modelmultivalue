@@ -15,27 +15,29 @@ Quick start
         'modelmultivalue',
     ]
 
-2. Add the ModelMultiValueField to a model form::
+2. Add the ModelMultiValueField to a model form
+    a. All django version::
 
-    from django import forms
-    from modelmultivalue import ModelMultiValueField
+        from django import forms
+        from modelmultivalue import ModelMultiValueField
 
-    class ExampleModelForm(forms.ModelForm):
-        class Meta:
-            model = Example
-            fields = '__all__'
+        class ExampleModelForm(forms.ModelForm):
+            class Meta:
+                model = Example
+                fields = '__all__'
 
-        ForeignKeyField = ModelMultiValueField(model=ForeignKey
+            ForeignKeyField = ModelMultiValueField(model=ForeignKey
 
-or for Django>=1.9::
+    b. for Django>=1.9::
 
-    from django import forms
-    from modelmultivalue import ModelMultiValueField
+        from django import forms
+        from modelmultivalue import ModelMultiValueField
 
-    class ExampleModelForm(forms.ModelForm):
-        class Meta:
-            model = Example
-            fields = '__all__'
-            field_class_field={
-                'ForeignKeyField': ModelMultiValueField
-            }
+        class ExampleModelForm(forms.ModelForm):
+            class Meta:
+                model = Example
+                fields = '__all__'
+                field_class_field={
+                    'ForeignKeyField': ModelMultiValueField
+                }
+
