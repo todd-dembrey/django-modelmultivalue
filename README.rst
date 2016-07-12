@@ -15,7 +15,7 @@ Quick start
         'modelmultivalue',
     ]
 
-2. Add the modelmultivaluefield to a model form::
+2. Add the ModelMultiValueField to a model form::
 
     from django import forms
     from modelmultivalue import ModelMultiValueField
