@@ -16,6 +16,7 @@ Quick start
     ]
 
 2. Add the ModelMultiValueField to a model form
+
     a. All django version::
 
         from django import forms
