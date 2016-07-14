@@ -6,6 +6,8 @@ from .widgets import ModelMultiValueWidget, SelectModelMultiValueWidget
 
 
 class BaseModelMulti(forms.MultiValueField):
+    widget_class = None
+
     def __init__(self, model=None, fields=ALL_FIELDS, *args, **kwargs):
         if model is None:
             try:
@@ -25,16 +27,16 @@ class BaseModelMulti(forms.MultiValueField):
                     'The following required fields were missing: {}'.format(', '.join(missing_fields)),
                     'missing_required_fields')
 
-        self.model_form = forms.models.modelform_factory(self.model,
-                                                         fields=fields)
+        model_form = forms.models.modelform_factory(self.model,
+                                                    fields=fields)
 
         self.form_fields = [
-            field for field in self.model_form.base_fields.values()
+            field for field in model_form.base_fields.values()
             ]
 
-        self.field_names = list(self.model_form.base_fields.keys())
+        self.field_names = list(model_form.base_fields.keys())
 
-        self.widget = self.get_widget()
+        self.widget = self.widget_class(**self.widget_kwargs())
         # Remove kwargs that aren't needed TODO: Confirm not needed
         kwargs.pop('limit_choices_to', None)
         kwargs.pop('to_field_name', None)
@@ -46,40 +48,38 @@ class BaseModelMulti(forms.MultiValueField):
 
         super(BaseModelMulti, self).__init__(self.form_fields, *args, **kwargs)
 
-    def get_widget(self):
-        raise NotImplementedError('Subclasses must implement this method.')
+    def widget_kwargs(self):
+        return {'widgets': [field.widget for field in self.form_fields],
+                'field_names': self.field_names,
+                'labels': [field.label for field in self.form_fields],
+                'model': self.model
+                }
 
     def compress(self, data_list):
         if data_list:
-            attrs = dict((field, value) for field, value in zip(self.model_form.base_fields.keys(), data_list))
+            attrs = dict((field, value) for field, value in zip(self.field_names, data_list))
             return self.model.objects.create(**attrs)
         else:
             raise ValidationError('Could not create model', code='poor_data')
 
 
 class ModelMultiValueField(BaseModelMulti):
-    def get_widget(self):
-        return ModelMultiValueWidget(widgets=[field.widget for field in self.form_fields],
-                                     field_names=self.field_names,
-                                     labels=[field.label for field in self.form_fields],
-                                     model=self.model
-                                     )
+    widget_class = ModelMultiValueWidget
 
 
 class ModelChoiceAndMultiField(BaseModelMulti):
+    widget_class = SelectModelMultiValueWidget
+
     def __init__(self, *args, **kwargs):
         kwargs.update({'required': False})
         self.select = forms.ModelChoiceField(*args, **kwargs)
         super(ModelChoiceAndMultiField, self).__init__(*args, **kwargs)
         self.fields.insert(0, self.select)
 
-    def get_widget(self):
-        return SelectModelMultiValueWidget(select=self.select,
-                                           widgets=[field.widget for field in self.form_fields],
-                                           field_names=self.field_names,
-                                           labels=[field.label for field in self.form_fields],
-                                           model=self.model
-                                           )
+    def widget_kwargs(self):
+        kwargs = super(ModelChoiceAndMultiField, self).widget_kwargs()
+        kwargs.update({'select': self.select})
+        return kwargs
 
     def compress(self, data_list):
         try:
