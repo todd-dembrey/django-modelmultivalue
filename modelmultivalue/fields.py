@@ -2,12 +2,11 @@ from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import ValidationError, ALL_FIELDS
 
-from .widgets import ModelMultiValueWidget
+from .widgets import ModelMultiValueWidget, SelectModelMultiValueWidget
 
 
-class ModelMultiValueField(forms.MultiValueField):
+class BaseModelMulti(forms.MultiValueField):
     def __init__(self, model=None, fields=ALL_FIELDS, *args, **kwargs):
-
         if model is None:
             try:
                 self.model = kwargs.pop('queryset', None).model
@@ -29,15 +28,13 @@ class ModelMultiValueField(forms.MultiValueField):
         self.model_form = forms.models.modelform_factory(self.model,
                                                          fields=fields)
 
-        form_fields = [
+        self.form_fields = [
             field for field in self.model_form.base_fields.values()
-        ]
+            ]
 
-        self.widget = ModelMultiValueWidget(widgets=[field.widget for field in form_fields],
-                                            field_names=self.model_form.base_fields.keys(),
-                                            labels=[field.label for field in form_fields],
-                                            model=self.model
-                                            )
+        self.field_names = list(self.model_form.base_fields.keys())
+
+        self.widget = self.get_widget()
         # Remove kwargs that aren't needed TODO: Confirm not needed
         kwargs.pop('limit_choices_to', None)
         kwargs.pop('to_field_name', None)
@@ -47,7 +44,10 @@ class ModelMultiValueField(forms.MultiValueField):
                        'require_all_fields': False
                        })
 
-        super(ModelMultiValueField, self).__init__(form_fields, *args, **kwargs)
+        super(BaseModelMulti, self).__init__(self.form_fields, *args, **kwargs)
+
+    def get_widget(self):
+        raise NotImplementedError('Subclasses must implement this method.')
 
     def compress(self, data_list):
         if data_list:
@@ -57,10 +57,39 @@ class ModelMultiValueField(forms.MultiValueField):
             raise ValidationError('Could not create model', code='poor_data')
 
 
-class ModelChoiceAndMultiField(forms.ModelChoiceField, ModelMultiValueField):
+class ModelMultiValueField(BaseModelMulti):
+    def get_widget(self):
+        return ModelMultiValueWidget(widgets=[field.widget for field in self.form_fields],
+                                     field_names=self.field_names,
+                                     labels=[field.label for field in self.form_fields],
+                                     model=self.model
+                                     )
+
+
+class ModelChoiceAndMultiField(BaseModelMulti):
     def __init__(self, *args, **kwargs):
-
+        kwargs.update({'required': False})
+        self.select = forms.ModelChoiceField(*args, **kwargs)
         super(ModelChoiceAndMultiField, self).__init__(*args, **kwargs)
+        self.fields.insert(0, self.select)
 
-        # Because ModelChoiceField doesnt play nice with the MRO
-        ModelMultiValueField.__init__(self, *args, **kwargs)
+    def get_widget(self):
+        return SelectModelMultiValueWidget(select=self.select,
+                                           widgets=[field.widget for field in self.form_fields],
+                                           field_names=self.field_names,
+                                           labels=[field.label for field in self.form_fields],
+                                           model=self.model
+                                           )
+
+    def compress(self, data_list):
+        try:
+            object_id = data_list.pop(0)
+            return self.model.objects.get(id=object_id)
+        except (IndexError, self.model.DoesNotExist):
+            return super(ModelChoiceAndMultiField, self).compress(data_list)
+
+    def clean(self, value):
+        out = self.fields[0].clean(value[0])
+        if not out:
+            return super(ModelChoiceAndMultiField, self).clean(value)
+        return out
