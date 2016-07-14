@@ -1,6 +1,6 @@
 import pytest
 
-import django
+from .conftest import django_18_field_class_skip
 
 from .test_app.models import BaseModel, RelatedModel
 from .test_app.forms import BaseModelMetaForm
@@ -9,8 +9,7 @@ from .test_app.forms import BaseModelMetaForm
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.skipif(django.VERSION[:2] < (1, 9),
-                    reason='field_classes added in 1.9')
+@django_18_field_class_skip
 def test_save_meta():
     form = BaseModelMetaForm({'fk_0': 1})
 
