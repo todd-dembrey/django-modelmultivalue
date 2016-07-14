@@ -6,16 +6,15 @@ from .test_app.forms import ChoiceAndMultiForm, ChoiceAndMultipleFieldForm
 
 pytestmark = pytest.mark.django_db
 
-
+fields = 'test_form, parent_model, related_model, fields'
 test_data = (
             (ChoiceAndMultiForm, BaseModel, RelatedModel, {'test_field': 1}),
             (ChoiceAndMultipleFieldForm, MultiFieldModel, MultiFieldRelatedModel, {'test_field_0': 1, 'test_field_1': 1}),
     )
+test_input = (fields, test_data)
 
 
-@pytest.mark.parametrize(
-    'test_form, parent_model, related_model, fields', test_data
-)
+@pytest.mark.parametrize(*test_input)
 def test_save_multi(test_form, parent_model, related_model, fields):
     form_dict = {'fk_{}'.format(i+1): field for i, field in enumerate(fields.values())}
     form = test_form(form_dict)
@@ -28,9 +27,7 @@ def test_save_multi(test_form, parent_model, related_model, fields):
     assert related_model.objects.count() == 1
 
 
-@pytest.mark.parametrize(
-    'test_form, parent_model, related_model, fields', test_data
-)
+@pytest.mark.parametrize(*test_input)
 def test_save_choice(test_form, parent_model, related_model, fields):
     related = related_model.objects.create(**fields)
 
