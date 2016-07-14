@@ -1,5 +1,7 @@
 import pytest
 
+import django
+
 from .test_app.models import BaseModel, RelatedModel, MultiFieldModel, MultiFieldRelatedModel
 from .test_app.forms import ChoiceAndMultiForm, ChoiceAndMultipleFieldForm
 
@@ -14,6 +16,8 @@ test_data = (
 test_input = (fields, test_data)
 
 
+@pytest.mark.skipif(django.VERSION[:2] < (1, 9),
+                    reason='field_classes added in 1.9')
 @pytest.mark.parametrize(*test_input)
 def test_save_multi(test_form, parent_model, related_model, fields):
     form_dict = {'fk_{}'.format(i+1): field for i, field in enumerate(fields.values())}
@@ -27,6 +31,8 @@ def test_save_multi(test_form, parent_model, related_model, fields):
     assert related_model.objects.count() == 1
 
 
+@pytest.mark.skipif(django.VERSION[:2] < (1, 9),
+                    reason='field_classes added in 1.9')
 @pytest.mark.parametrize(*test_input)
 def test_save_choice(test_form, parent_model, related_model, fields):
     related = related_model.objects.create(**fields)
