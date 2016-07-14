@@ -64,10 +64,18 @@ class BaseModelMulti(forms.MultiValueField):
 
 
 class ModelMultiValueField(BaseModelMulti):
+    """A field class which provides a sub-form for a model.
+    """
     widget_class = ModelMultiValueWidget
 
 
 class ModelChoiceAndMultiField(BaseModelMulti):
+    """A field class which provides a select field and a sub-form for a model.
+
+    The select field takes priority over the sub-form.
+
+    This doesn't work with django < 1.9
+    """
     widget_class = SelectModelMultiValueWidget
 
     def __init__(self, *args, **kwargs):
