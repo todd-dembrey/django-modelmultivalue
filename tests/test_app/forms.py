@@ -38,3 +38,12 @@ class ChoiceAndMultiForm(forms.ModelForm):
         field_classes = {
             'fk': ModelChoiceAndMultiField
         }
+
+
+class ChoiceAndMultipleFieldForm(forms.ModelForm):
+    class Meta:
+        model = MultiFieldModel
+        fields = '__all__'
+        field_classes = {
+            'fk': ModelChoiceAndMultiField
+        }
