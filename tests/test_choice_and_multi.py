@@ -8,7 +8,7 @@ pytestmark = pytest.mark.django_db
 
 
 def test_save_multi():
-    form = ChoiceAndMultiForm({'fk_0': 1})
+    form = ChoiceAndMultiForm({'fk_1': 1})
 
     assert form.is_valid()
 
@@ -23,7 +23,7 @@ def test_save_choice():
 
     assert RelatedModel.objects.count() == 1
 
-    form = ChoiceAndMultiForm({'fk_choice': related.pk})
+    form = ChoiceAndMultiForm({'fk_0': related.pk})
 
     assert form.is_valid()
 
