@@ -7,55 +7,40 @@ from .test_app.forms import ChoiceAndMultiForm, ChoiceAndMultipleFieldForm
 pytestmark = pytest.mark.django_db
 
 
-def test_save_multi():
-    form = ChoiceAndMultiForm({'fk_1': 1})
+test_data = (
+            (ChoiceAndMultiForm, BaseModel, RelatedModel, {'test_field': 1}),
+            (ChoiceAndMultipleFieldForm, MultiFieldModel, MultiFieldRelatedModel, {'test_field_0': 1, 'test_field_1': 1}),
+    )
+
+
+@pytest.mark.parametrize(
+    'test_form, parent_model, related_model, fields', test_data
+)
+def test_save_multi(test_form, parent_model, related_model, fields):
+    form_dict = {'fk_{}'.format(i+1): field for i, field in enumerate(fields.values())}
+    form = test_form(form_dict)
 
     assert form.is_valid()
 
     form.save()
 
-    assert BaseModel.objects.count() == 1
-    assert RelatedModel.objects.count() == 1
+    assert parent_model.objects.count() == 1
+    assert related_model.objects.count() == 1
 
 
-def test_save_choice():
-    related = RelatedModel.objects.create(test_field=1)
+@pytest.mark.parametrize(
+    'test_form, parent_model, related_model, fields', test_data
+)
+def test_save_choice(test_form, parent_model, related_model, fields):
+    related = related_model.objects.create(**fields)
 
-    assert RelatedModel.objects.count() == 1
+    assert related_model.objects.count() == 1
 
-    form = ChoiceAndMultiForm({'fk_0': related.pk})
-
-    assert form.is_valid()
-
-    form.save()
-
-    assert BaseModel.objects.count() == 1
-    assert RelatedModel.objects.count() == 1
-
-
-def test_save_multi_field():
-    form = ChoiceAndMultipleFieldForm({'fk_1': 1,
-                                       'fk_2': 2})
+    form = test_form({'fk_0': related.pk})
 
     assert form.is_valid()
 
     form.save()
 
-    assert MultiFieldModel.objects.count() == 1
-    assert MultiFieldRelatedModel.objects.count() == 1
-
-
-def test_save_choice_multi_field():
-    related = MultiFieldRelatedModel.objects.create(test_field_0=1,
-                                                    test_field_1=1)
-
-    assert MultiFieldRelatedModel.objects.count() == 1
-
-    form = ChoiceAndMultipleFieldForm({'fk_0': related.pk})
-
-    assert form.is_valid()
-
-    form.save()
-
-    assert MultiFieldModel.objects.count() == 1
-    assert MultiFieldRelatedModel.objects.count() == 1
+    assert parent_model.objects.count() == 1
+    assert related_model.objects.count() == 1
