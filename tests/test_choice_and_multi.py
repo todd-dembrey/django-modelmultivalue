@@ -45,3 +45,12 @@ def test_save_choice(test_form, parent_model, related_model, fields):
 
     assert parent_model.objects.count() == 1
     assert related_model.objects.count() == 1
+
+
+def test_blank_form():
+    """This tests a bug where no value was passed to Super in the decompress function"""
+    form = ChoiceAndMultipleFieldForm()
+    try:
+        form.as_p()
+    except TypeError as e:
+        raise e

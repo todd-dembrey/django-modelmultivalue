@@ -35,7 +35,7 @@ class SelectModelMultiValueWidget(ModelMultiValueWidget):
         super(SelectModelMultiValueWidget, self).__init__(field_names=field_names, labels=labels, widgets=widgets, *args, **kwargs)
 
     def decompress(self, value):
-        decompressed = super(SelectModelMultiValueWidget, self).decompress()
+        decompressed = super(SelectModelMultiValueWidget, self).decompress(None)
         return [value] + decompressed
 
     def format_output(self, rendered_widgets):
